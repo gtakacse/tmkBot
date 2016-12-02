@@ -126,12 +126,22 @@ class tmkCrawler():
         org_del = org.find('span', 'del')
         # if deleted
         if org_del is not None:
+            org = org.text
+            org_del = org_del.text
+            org = org.replace(org_del, '{'+org_del+'}') # the curly braces represent deletion
             nrm = word_box.find('span', 'nrm')
-            return (self.replace_html(org_del.text),
+            nrm_del = nrm.find('span', 'del')
+            if nrm_del is not None:
+                nrm = nrm.text.replace(nrm_del.text, '{'+nrm_del.text+'}')
+                return(self.replace_html(org),
+                       self.replace_html(nrm),
+                       '',
+                       '')
+            else:
+                return (self.replace_html(org),
                     self.replace_html(nrm.text),
                     '',
-                    '',
-                    1)  # the 1 at the end represents deleted
+                    '')
         # try to look for deletion attribute
         # normalized form
         else:
@@ -144,8 +154,7 @@ class tmkCrawler():
             return (self.replace_html(org.text),
                     self.replace_html(nrm.text),
                     self.replace_html(lem.text),
-                    self.replace_html(tag.text),
-                    0)  # the 0 stands for non-deleted
+                    self.replace_html(tag.text))
 
     def replace_html(self, text):
         return text.replace('\xa0', ' ')
